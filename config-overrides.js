@@ -8,6 +8,7 @@
  */
 
 const path = require('path')
+const Jarvis = require('webpack-jarvis')
 
 module.exports = function override(options, env) {
   // add alias for resource reference
@@ -33,7 +34,14 @@ module.exports = function override(options, env) {
       ]
     }
   })
-
+  if (process.env.ENV_ANALYZE) {
+    options.plugins.push(
+      new Jarvis({
+        port: 1337,
+        watchOnly: false
+      })
+    )
+  }
 
   return options
 }

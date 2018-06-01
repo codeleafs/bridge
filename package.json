@@ -17,7 +17,8 @@
     "react-scripts": "1.1.4",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "rxjs": "^6.2.0"
+    "rxjs": "^6.2.0",
+    "webpack-jarvis": "^0.3.2"
   },
   "scripts": {
     "precommit": "lint-staged",
@@ -28,7 +29,8 @@
     "deploy": "PUBLIC_URL=//cdn.company.com npm run build",
     "converage": "npm test -- --coverage",
     "eject": "react-scripts eject",
-    "analyze": "source-map-explorer build/static/js/main.*",
+    "analyze":
+      "source-map-explorer build/static/js/main.* & ENV_ANALYZE=true npm run build",
     "storybook": "NODE_PATH=./src start-storybook -p 9009 -s public,src",
     "build-storybook": "build-storybook -s public"
   },
