@@ -26,7 +26,7 @@
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
     "build": "react-app-rewired build",
-    "deploy": "PUBLIC_URL=//cdn.company.com npm run build",
+    "deploy": "PUBLIC_URL=//cdn.company.com GENERATE_SOURCEMAP=false npm run build",
     "converage": "npm test -- --coverage",
     "eject": "react-scripts eject",
     "analyze":
