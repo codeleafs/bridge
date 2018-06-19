@@ -25,12 +25,13 @@ const defaultOptions = {
   }
 }
 
+const TOKEN_EXPIRED = 'TOKEN_EXPIRED'
+
 const fetcher = new class {
   /**
    * Get the default options
    */
   _options = null
-
   _tokenExpiredHandler = null
 
   constructor(options) {
@@ -42,50 +43,50 @@ const fetcher = new class {
    *
    * @param {string} url
    * @param {object} init
-   * @param {bool} original
-   * @returns fetch promise
+   * @param {function} handles
+   * @returns response promise
    */
-  _fetch(url, init, original = false) {
-    return fetch(url, init).then(res => {
-      if (original) {
-        return res
-      }
-      if (res.status === 401) {
-        return this._refreshToken(res).then(accessToken => {
-          Object.assign(init.headers, { 'access-token': accessToken })
-          return this._fetch(url, init)
-        })
-      }
-      switch (res.headers.get('Content-Type')) {
-        case 'application/json;charset=UTF-8':
-          return res.json()
-        default:
-          return res.text()
-      }
-    })
+  _fetch(url, init, handle) {
+    const handles = [
+      res => this._refreshToken(res, { url, init }),
+      handle || (res => res.json())
+    ]
+    return handles
+      .reduce((res, handle) => res.then(handle), fetch(url, init))
+      .catch(err => {
+        if (err === TOKEN_EXPIRED) {
+          this._tokenExpiredHandler()
+        }
+        throw err
+      })
   }
 
   /**
    * Return fetch to refresh access_token by refresh_token
+   *
+   * @param {object} response
+   * @param {object} request
+   * @returns response promise
    */
-  _refreshToken() {
+  _refreshToken(response, request) {
+    if (response.status !== 401) {
+      return response
+    }
     const options = this._attachHeaders({
       method: 'POST',
       body: qs.stringify({
         'refresh-token': window.bridge.refreshToken
       })
     })
-    return fetch('/api/getAccesstoken', options).then(res => {
+    return fetch('/api/token/refresh', options).then(res => {
       const accessToken = res.headers.get('access-token')
       if (accessToken) {
         window.bridge.setAccessToken(accessToken)
-        return accessToken
-      } else {
-        this._tokenExpiredHandler && this._tokenExpiredHandler(res)
-        return Promise.reject(
-          "Can't access api to refresh token or refresh token expired"
-        )
+        const { url, init } = request
+        Object.assign(init.headers, { 'access-token': accessToken })
+        return fetch(url, init)
       }
+      throw TOKEN_EXPIRED
     })
   }
 
@@ -112,12 +113,12 @@ const fetcher = new class {
    *
    * @param {string} url
    * @param {object} options
-   * @param {bool} original
+   * @param {function} handle
    * @returns
    */
-  fetch(url, options, original) {
+  fetch(url, options, handle) {
     const mergeOptions = this._attachHeaders(options)
-    return this._fetch(url, mergeOptions, original)
+    return this._fetch(url, mergeOptions, handle)
   }
 
   /**
@@ -125,12 +126,12 @@ const fetcher = new class {
    *
    * @param {string} url
    * @param {object} options
-   * @param {bool} original
+   * @param {function} handle
    * @returns
    */
-  get(url, options, original) {
+  get(url, options, handle) {
     const mergeOptions = this._attachHeaders({ method: 'GET', ...options })
-    return this._fetch(url, mergeOptions, original)
+    return this._fetch(url, mergeOptions, handle)
   }
 
   /**
@@ -139,10 +140,10 @@ const fetcher = new class {
    * @param {string} url
    * @param {any} data
    * @param {object} options
-   * @param {bool} original
+   * @param {function} handle
    * @returns
    */
-  post(url, data, options, original) {
+  post(url, data, options, handle) {
     const mergeOptions = this._attachHeaders({
       method: 'POST',
       body: null,
@@ -152,7 +153,7 @@ const fetcher = new class {
       data,
       mergeOptions.headers['Content-Type']
     )
-    return this._fetch(url, mergeOptions, original)
+    return this._fetch(url, mergeOptions, handle)
   }
 
   /**
