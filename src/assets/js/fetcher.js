@@ -33,6 +33,7 @@ const fetcher = new class {
    */
   _options = null
   _tokenExpiredHandler = null
+  _tokenRenovate = null
 
   constructor(options) {
     this._options = options
@@ -72,21 +73,27 @@ const fetcher = new class {
     if (response.status !== 401) {
       return response
     }
-    const options = this._attachHeaders({
-      method: 'POST',
-      body: qs.stringify({
-        'refresh-token': window.bridge.refreshToken
+    if (!this._tokenRenovate) {
+      const options = this._attachHeaders({
+        method: 'POST',
+        body: qs.stringify({
+          'refresh-token': window.bridge.refreshToken
+        })
       })
-    })
-    return fetch('/api/token/refresh', options).then(res => {
-      const accessToken = res.headers.get('access-token')
-      if (accessToken) {
-        window.bridge.setAccessToken(accessToken)
-        const { url, init } = request
-        Object.assign(init.headers, { 'access-token': accessToken })
-        return fetch(url, init)
-      }
-      throw TOKEN_EXPIRED
+      this._tokenRenovate = fetch('/api/token/refresh', options).then(res => {
+        const accessToken = res.headers.get('access-token')
+        if (accessToken) {
+          window.bridge.setAccessToken(accessToken)
+          this._tokenRenovate = null
+          return accessToken
+        }
+        throw TOKEN_EXPIRED
+      })
+    }
+    return this._tokenRenovate.then(accessToken => {
+      const { url, init } = request
+      Object.assign(init.headers, { 'access-token': accessToken })
+      return fetch(url, init)
     })
   }
 

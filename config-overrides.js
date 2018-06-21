@@ -9,7 +9,7 @@
 const path = require('path')
 const fs = require('fs')
 const Jarvis = require('webpack-jarvis')
-const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
+const WebpackSubresourceIntegrity = require('webpack-subresource-integrity')
 
 const appDirectory = fs.realpathSync(process.cwd())
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath)
@@ -56,9 +56,11 @@ module.exports = function override(options, env) {
       monitor: resolveApp('src/assets/js/monitor.js'),
       app: [options.entry[0], options.entry[1]]
     }
+    options.output.crossOriginLoading = 'anonymous'
     options.plugins.push(
-      new ScriptExtHtmlWebpackPlugin({
-        inline: ['monitor']
+      new WebpackSubresourceIntegrity({
+        hashFuncNames: ['sha256', 'sha384'],
+        enabled: env === 'production'
       })
     )
   }
