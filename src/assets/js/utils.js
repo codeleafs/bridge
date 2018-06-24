@@ -7,11 +7,51 @@
  *
  */
 
-export const preventSelf = cb => evt => {
-  evt.stopPropagation()
-  if (evt.target !== evt.currentTarget) {
-    cb && cb()
-    return
+export default new class {
+
+  /**
+   * Return or cache the data for specify key
+   *
+   * @param {string} key
+   * @param {string} value
+   * @returns
+   */
+  cache(key, value) {
+    if (value === undefined) {
+      return sessionStorage.getItem(key)
+    }
+    sessionStorage.setItem(key, value)
   }
-  evt.preventDefault()
+
+  /**
+   * store value to localStorage
+   *
+   * @param {string} key
+   * @param {string} value
+   * @param {number} expired(s)
+   * @returns
+   */
+  store(key, value, expired) {
+    if (value === undefined) {
+      const val = (localStorage.getItem(key) || '').split(';;expired=')
+      return !val[1] || val[1] > Date.now() ? val[0] : ''
+    }
+    const timestamp = expired ? `;;expired=${Date.now() + expired * 1000}` : ''
+    localStorage.setItem(key, value + timestamp)
+  }
+
+  /**
+   * remove value from localStorage
+   * @param {string} key
+   */
+  removeStore(key) {
+    localStorage.removeItem(key)
+  }
+
+  /**
+   * remove all from localStorage
+   */
+  clearStore() {
+    localStorage.clear()
+  }
 }

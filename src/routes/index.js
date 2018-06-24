@@ -25,7 +25,7 @@ const splitCode = ({ loader, sync, allowAnonymous, title, ...others }) => {
   return {
     ...others,
     render: props => {
-      if (allowAnonymous || window.bridge.login) {
+      if (allowAnonymous || window.appState.login) {
         document.title = title
         document.body.style.overflow = ''
         document.body.style.position = ''

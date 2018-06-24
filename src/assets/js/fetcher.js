@@ -77,13 +77,13 @@ const fetcher = new class {
       const options = this._attachHeaders({
         method: 'POST',
         body: qs.stringify({
-          'refresh-token': window.bridge.refreshToken
+          'refresh-token': window.appState.refreshToken
         })
       })
       this._tokenRenovate = fetch('/api/token/refresh', options).then(res => {
         const accessToken = res.headers.get('access-token')
         if (accessToken) {
-          window.bridge.setAccessToken(accessToken)
+          window.appState.setAccessToken(accessToken)
           this._tokenRenovate = null
           return accessToken
         }
@@ -180,7 +180,7 @@ const fetcher = new class {
   _attachHeaders(options = {}) {
     const headers = Object.assign(
       {
-        'access-token': window.bridge.accessToken
+        'access-token': window.appState.accessToken
       },
       this._options.headers,
       options.headers

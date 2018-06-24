@@ -7,12 +7,8 @@
  *
  */
 
-import 'assets/js/init'
-import React from 'react'
-import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
-import register from './registerServiceWorker'
+import utils from './utils'
+import appState from './appState'
 
-ReactDOM.render(<App />, document.getElementById('root'))
-register()
+window.utils = utils
+window.appState = appState
