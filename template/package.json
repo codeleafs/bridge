@@ -1,6 +1,7 @@
 {
-  "name": "{{ name }}",
+  "name": "{{appName}}",
   "version": "0.0.1",
+  "description": "{{description}}",
   "private": true,
   "dependencies": {
     "history": "^4.7.2",
@@ -24,7 +25,7 @@
     "start": "react-app-rewired start",
     "test": "react-app-rewired test --env=jsdom",
     "build": "react-app-rewired build",
-    "deploy": "PUBLIC_URL=//cdn.company.com GENERATE_SOURCEMAP=false npm run build",
+    "deploy": "PUBLIC_URL=//cdn.company.com GENERATE_SOURCEMAP=false npm run build", 
     "converage": "npm test -- --coverage",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer build/static/js/main.* & ENV_ANALYZE=true npm run build",

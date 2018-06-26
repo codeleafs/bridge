@@ -1,0 +1,14 @@
+{
+  "generate-react-component.conditionals": ["class"],
+  "generate-react-component.componentTemplatePath": ".vscode/componentTemplate",
+  "generate-react-component.containerTemplatePath": ".vscode/containerTemplate",
+  "licenser.license": "{{license}}",
+  "licenser.author": "{{author}}",
+  "licenser.projectName": "{{appName}}",
+  "licenser.useSingleLineStyle": false,
+  "editor.tabSize": 2,
+  "licenser.customTermsAndConditions":
+    "Copyright @YEAR@-present, @AUTHOR@, Inc.\n\n All rights reserved.\n\n",
+  "licenser.customHeader":
+    "Copyright @YEAR@-present, @AUTHOR@, Inc\n\nThis source code is licensed under the {{license}} LICENSE found in the\nLICENSE file in the root directory of this source tree. An additional grant\nof patent rights can be found in the PATENTS file in the same directory.\n"
+}
